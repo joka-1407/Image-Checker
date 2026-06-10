@@ -41,24 +41,26 @@ def T(k): return THEMES[_theme][k]
 #  App State
 # ════════════════════════════════════════════════════════════════════════════
 
+
 current_image_path = ""
-image_info         = ""
-media_info         = ""
-_pil_image         = None   # stored original for dynamic re-thumbnailing
+image_info = ""
+media_info = ""
+_pil_image = None   # stored original for dynamic re-thumbnailing
 
 # ════════════════════════════════════════════════════════════════════════════
 #  Preview Helper
 # ════════════════════════════════════════════════════════════════════════════
+
 
 def _refresh_preview():
     """Re-thumbnail the stored PIL image to fill the current preview card."""
     if _pil_image is None:
         return
     root.update_idletasks()
-    pw = max(preview_card.winfo_width()  - 24, 100)
+    pw = max(preview_card.winfo_width() - 24, 100)
     ph = max(preview_card.winfo_height() - 24, 80)
     thumb = _pil_image.copy()
-    thumb.thumbnail((pw, ph), Image.LANCZOS) # type: ignore
+    thumb.thumbnail((pw, ph), Image.LANCZOS)  # type: ignore
     photo = ImageTk.PhotoImage(thumb)
     preview_lbl.config(image=photo, text="")
     preview_lbl.image = photo  # type: ignore
@@ -66,6 +68,7 @@ def _refresh_preview():
 # ════════════════════════════════════════════════════════════════════════════
 #  Actions
 # ════════════════════════════════════════════════════════════════════════════
+
 
 def open_image_external():
     if not current_image_path:
@@ -76,10 +79,12 @@ def open_image_external():
         return
     os.startfile(current_image_path)
 
+
 def prompt_for_url():
     url = simpledialog.askstring("Analyze Image URL", "Enter an image URL:")
     if url:
         load_image_from_url(url)
+
 
 def copy_info():
     if not media_info:
@@ -89,6 +94,7 @@ def copy_info():
     root.clipboard_append(media_info)
     root.update()
     messagebox.showinfo("Copied", "Image information copied to clipboard.")
+
 
 def export_info():
     fn = filedialog.asksaveasfilename(
@@ -100,13 +106,16 @@ def export_info():
             f.write(media_info)
         messagebox.showinfo("Exported", "Image information exported.")
 
+
 def toggle_topmost():
     root.attributes("-topmost", stay_on_top.get())
+
 
 def toggle_theme():
     global _theme
     _theme = "dark" if dark_mode.get() else "light"
     apply_theme()
+
 
 def open_image():
     fp = filedialog.askopenfilename(
@@ -123,13 +132,14 @@ def open_image():
     load_image(img, os.path.basename(fp), fp,
                f"{os.path.getsize(fp) / 1024:.2f} KB")
 
+
 def load_image(img, source_name="Clipboard", source_path="", file_size_info="Unknown"):
     global current_image_path, image_info, media_info, _pil_image
 
     current_image_path = source_path
-    _pil_image         = img.copy()
-    width, height      = img.size
-    d  = math.gcd(width, height)
+    _pil_image = img.copy()
+    width, height = img.size
+    d = math.gcd(width, height)
     aw, ah = width // d, height // d
     ratio_type = {
         (16, 9):  "Widescreen",
@@ -176,6 +186,7 @@ def load_image(img, source_name="Clipboard", source_path="", file_size_info="Unk
 
     status_var.set(f"  {source_name}   *   {width} x {height} px")
 
+
 def copy_path():
     if not current_image_path:
         messagebox.showwarning("No Image", "Please select an image first.")
@@ -184,6 +195,7 @@ def copy_path():
     root.clipboard_append(current_image_path)
     root.update()
     messagebox.showinfo("Copied", "Image path copied to clipboard.")
+
 
 def paste_image(event=None):
     try:
@@ -194,7 +206,8 @@ def paste_image(event=None):
         if isinstance(cc, list):
             fp = cc[0]
             if not fp.lower().endswith((".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp")):
-                messagebox.showwarning("Invalid File", "Not a supported image format.")
+                messagebox.showwarning(
+                    "Invalid File", "Not a supported image format.")
                 return
             try:
                 img = Image.open(fp)
@@ -215,6 +228,7 @@ def paste_image(event=None):
     except Exception as e:
         messagebox.showerror("Paste Error", str(e))
 
+
 def drop_image(event):
     fp = root.tk.splitlist(event.data)[0]
     if not fp.lower().endswith((".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp")):
@@ -226,6 +240,7 @@ def drop_image(event):
                    f"{os.path.getsize(fp) / 1024:.2f} KB")
     except Exception as e:
         messagebox.showerror("Drop Error", str(e))
+
 
 def load_image_from_url(url):
     if not (url.startswith("http://") or url.startswith("https://")):
@@ -244,8 +259,10 @@ def load_image_from_url(url):
     except Exception as e:
         messagebox.showerror("URL Error", f"Could not load image:\n{e}")
 
+
 def show_menu():
     menu.tk_popup(menu_btn.winfo_rootx(), menu_btn.winfo_rooty() + 34)
+
 
 def show_media_info():
     if current_image_path:
@@ -257,7 +274,9 @@ def show_media_info():
 #  Info Panel
 # ════════════════════════════════════════════════════════════════════════════
 
+
 _rows = []  # [(row_frame, key_label, val_label)]
+
 
 def _set_info_rows(data):
     global _rows
@@ -289,6 +308,7 @@ def _set_info_rows(data):
 # ════════════════════════════════════════════════════════════════════════════
 #  Theme Application
 # ════════════════════════════════════════════════════════════════════════════
+
 
 def apply_theme():
     root.config(bg=T("bg"))
@@ -349,14 +369,15 @@ def apply_theme():
 #  UI Construction
 # ════════════════════════════════════════════════════════════════════════════
 
+
 root = TkinterDnD.Tk()
-root.title("Image Dimension Checker")
+root.title("Peekture")
 root.geometry("520x760")
 root.resizable(False, False)
 root.bind("<Control-v>", paste_image)
 
 stay_on_top = BooleanVar(value=False)
-dark_mode   = BooleanVar(value=False)
+dark_mode = BooleanVar(value=False)
 
 # ── Header ────────────────────────────────────────────────────────────────────
 
@@ -364,7 +385,7 @@ header_frame = Frame(root, height=52)
 header_frame.pack(fill=X)
 header_frame.pack_propagate(False)
 
-title_lbl = Label(header_frame, text="Image Dimension Checker",
+title_lbl = Label(header_frame, text="Peekture",
                   font=("Segoe UI", 13, "bold"))
 title_lbl.pack(side=LEFT, padx=16)
 
@@ -383,17 +404,23 @@ toolbar_frame.pack(fill=X, padx=16, pady=12)
 
 _btns = []
 
+
 def _btn(parent, label, cmd, accent=True):
     b = Button(parent, text=label, font=("Segoe UI", 10),
                bd=0, relief=FLAT, cursor="hand2",
                padx=14, pady=8, command=cmd)
     _btns.append((b, accent))
-    b.bind("<Enter>", lambda e: b.config(bg=T("accent_h") if accent else T("border")))
-    b.bind("<Leave>", lambda e: b.config(bg=T("btn_bg")   if accent else T("sec_bg")))
+    b.bind("<Enter>", lambda e: b.config(
+        bg=T("accent_h") if accent else T("border")))
+    b.bind("<Leave>", lambda e: b.config(
+        bg=T("btn_bg") if accent else T("sec_bg")))
     return b
 
-_btn(toolbar_frame, "Select Image",   open_image,          True ).pack(side=LEFT, padx=(0, 8))
-_btn(toolbar_frame, "Analyze URL",    prompt_for_url,      False).pack(side=LEFT, padx=(0, 8))
+
+_btn(toolbar_frame, "Select Image",   open_image,
+     True).pack(side=LEFT, padx=(0, 8))
+_btn(toolbar_frame, "Analyze URL",    prompt_for_url,
+     False).pack(side=LEFT, padx=(0, 8))
 _btn(toolbar_frame, "Open in Photos", open_image_external, False).pack(side=LEFT)
 
 # ── Preview Card ──────────────────────────────────────────────────────────────
@@ -416,8 +443,10 @@ preview_lbl = Label(preview_card)
 preview_card.drop_target_register(DND_FILES)   # type: ignore
 preview_card.dnd_bind("<<Drop>>", drop_image)  # type: ignore
 
+
 def _drag_enter(e): preview_card.config(highlightbackground=T("accent"))
 def _drag_leave(e): preview_card.config(highlightbackground=T("drop_bd"))
+
 
 try:
     preview_card.dnd_bind("<<DropEnter>>", _drag_enter)  # type: ignore
@@ -441,20 +470,20 @@ info_canvas = Canvas(info_wrap, bd=0, highlightthickness=1)
 info_canvas.pack(side=LEFT, fill=BOTH, expand=True)
 
 info_scroll = ttk.Scrollbar(info_wrap, orient=VERTICAL,
-                             command=info_canvas.yview,
-                             style="Thin.Vertical.TScrollbar")
+                            command=info_canvas.yview,
+                            style="Thin.Vertical.TScrollbar")
 info_scroll.pack(side=RIGHT, fill=Y)
 info_canvas.configure(yscrollcommand=info_scroll.set)
 
-info_inner  = Frame(info_canvas)
-_info_win   = info_canvas.create_window((0, 0), window=info_inner, anchor=NW)
+info_inner = Frame(info_canvas)
+_info_win = info_canvas.create_window((0, 0), window=info_inner, anchor=NW)
 
 info_canvas.bind("<Configure>",
-    lambda e: info_canvas.itemconfig(_info_win, width=e.width))
+                 lambda e: info_canvas.itemconfig(_info_win, width=e.width))
 info_inner.bind("<Configure>",
-    lambda e: info_canvas.configure(scrollregion=info_canvas.bbox("all")))
+                lambda e: info_canvas.configure(scrollregion=info_canvas.bbox("all")))
 info_canvas.bind("<MouseWheel>",
-    lambda e: info_canvas.yview_scroll(int(-1 * (e.delta / 120)), "units"))
+                 lambda e: info_canvas.yview_scroll(int(-1 * (e.delta / 120)), "units"))
 
 # ── Status Bar ────────────────────────────────────────────────────────────────
 
@@ -476,8 +505,10 @@ menu.add_command(label="Export Information",      command=export_info)
 menu.add_command(label="Copy File Path",          command=copy_path)
 menu.add_command(label="Analyze Image URL",       command=prompt_for_url)
 menu.add_separator()
-menu.add_checkbutton(label="Always on Top", variable=stay_on_top, command=toggle_topmost)
-menu.add_checkbutton(label="Dark Mode",     variable=dark_mode,   command=toggle_theme)
+menu.add_checkbutton(label="Always on Top",
+                     variable=stay_on_top, command=toggle_topmost)
+menu.add_checkbutton(label="Dark Mode",
+                     variable=dark_mode,   command=toggle_theme)
 
 # ── Boot ──────────────────────────────────────────────────────────────────────
 
