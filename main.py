@@ -1,4 +1,4 @@
-from tkinter import *
+from tkinter import * # type: ignore
 from tkinter import filedialog
 from tkinter import messagebox
 from PIL import Image, ImageTk
@@ -73,7 +73,7 @@ def open_image():
 
     photo = ImageTk.PhotoImage(preview)
     image_label.config(image=photo)
-    image_label.image = photo
+    image_label.image = photo # type: ignore
 
     image_info = (
         f"File Name: {filename}\n"
