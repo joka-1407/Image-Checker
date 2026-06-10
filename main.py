@@ -1,4 +1,4 @@
-from tkinter import * # type: ignore
+from tkinter import *  # type: ignore
 from tkinter import filedialog
 from tkinter import messagebox
 from PIL import Image, ImageTk
@@ -73,7 +73,7 @@ def open_image():
 
     photo = ImageTk.PhotoImage(preview)
     image_label.config(image=photo)
-    image_label.image = photo # type: ignore
+    image_label.image = photo  # type: ignore
 
     image_info = (
         f"File Name: {filename}\n"
@@ -134,6 +134,11 @@ menu.add_command(
     command=export_info
 )
 
+menu.add_command(
+    label="Copy as Path",
+    command=lambda: root.clipboard_append(current_image_path) if current_image_path else messagebox.showwarning(
+        "No Image", "Please select an image first.")
+)
 menu.add_separator()
 
 menu.add_checkbutton(
@@ -179,12 +184,6 @@ Button(
     root,
     text="Copy Info",
     command=copy_info,
-).pack(pady=5)
-
-Button(
-    root,
-    text="Export Info",
-    command=export_info,
 ).pack(pady=5)
 
 image_label = Label(root)
