@@ -6,6 +6,7 @@ import requests
 from io import BytesIO
 import math
 import os
+import sys
 
 # ════════════════════════════════════════════════════════════════════════════
 #  Theme
@@ -64,6 +65,18 @@ def _refresh_preview():
     photo = ImageTk.PhotoImage(thumb)
     preview_lbl.config(image=photo, text="")
     preview_lbl.image = photo  # type: ignore
+    
+
+# ════════════════════════════════════════════════════════════════════════════
+# Resource Path for Window Icon
+# ════════════════════════════════════════════════════════════════════════════
+
+def resource_path(relative_path):
+    """Works both in development and when compiled by PyInstaller."""
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path) #type: ignore
+    return os.path.join(os.path.dirname(__file__), relative_path)
+
 
 # ════════════════════════════════════════════════════════════════════════════
 #  Actions
@@ -373,6 +386,7 @@ def apply_theme():
 root = TkinterDnD.Tk()
 root.title("Peekture")
 root.geometry("520x760")
+root.iconbitmap(resource_path("Peaklogo_Icon.ico"))
 root.resizable(False, False)
 root.bind("<Control-v>", paste_image)
 

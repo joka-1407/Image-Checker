@@ -1,0 +1,12 @@
+# PyInstaller
+dist/
+build/
+*.spec
+
+# Inno Setup output
+installer/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
